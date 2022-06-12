@@ -116,7 +116,7 @@ class StrongHelpObject(StrongHelpBlock):
         if not self.parent_dir:
             return self.leafname
         parent = self.parent_dir.filename
-        return "{}.{}".format(parent, self.leafname)
+        return "{}.{}".format(parent, self.leafname.encode('latin-1'))
 
     @property
     def unix_filename(self):
@@ -127,7 +127,7 @@ class StrongHelpObject(StrongHelpBlock):
         if parent == '$':
             return leafname
         else:
-            return "{}/{}".format(parent, leafname)
+            return "{}/{}".format(parent, leafname.encode('utf-8'))
 
 
 class StrongHelpFile(StrongHelpObject):
