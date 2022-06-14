@@ -218,7 +218,7 @@ class StrongHelp(object):
                 self.data = fh.read()
 
         if self.data[0:4] != 'HELP':
-            raise StrongHelpFormatError("This is not a StronhHelp file")
+            raise StrongHelpFormatError("This is not a StrongHelp file")
 
         self.root_size = self.read_word(4)
         self.stronghelp_version = self.read_word(8)
@@ -230,17 +230,43 @@ class StrongHelp(object):
 
         self.root = StrongHelpDir(self, self.root_offset, parent_dir=None, leafname='$')
 
-    def __iter__(self):
-        """
-        List all the files in the StrongHelp file.
-        """
+        # Generate a list of all the files in the manual
+        self.files = []             # In the order we enumerate them
+        self.files_keyed = {}       # Keyed by the filename in lower case
+        self.files_named = {}       # Keyed by the name as used for lookups in lower case
+
         shdirs = [self.root]
         while shdirs:
             shdir = shdirs.pop()
             for shobj in shdir.objects:
                 if isinstance(shobj, StrongHelpDir):
                     shdirs.append(shobj)
-                yield shobj
+                self.files.append(shobj)
+
+                lower = shobj.filename.lower()
+                self.files_keyed[lower] = shobj
+                stripped = lower.replace('.', '')
+                self.files_named[stripped] = shobj
+
+    def __iter__(self):
+        """
+        List all the files in the StrongHelp file.
+        """
+        return iter(self.files)
+
+    def __len__(self):
+        return len(self.files)
+
+    def __getitem__(self, key):
+        """
+        Array indexing, either by the file number from 0 or the filename
+        """
+        if isinstance(key, int):
+            # Lookup by number, so we'll just read that object
+            return self.files[key]
+
+        key = key.lower()
+        return self.files_keyed[key]
 
     def read_word(self, offset):
         #print("Read word at &{:x}".format(offset))
