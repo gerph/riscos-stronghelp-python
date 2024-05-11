@@ -3,7 +3,7 @@ Parse the StrongHelp file format into structured data.
 
 Example usage::
 
-    from stronghelp.format import StrongHelp, objtype_dir
+    from riscos_stronghelp.format import StrongHelp, objtype_dir
 
     sh = StrongHelp(shfilename)
 
@@ -118,11 +118,26 @@ class StrongHelpObject(StrongHelpBlock):
         leafname = self.leafname.replace('/', '.')
         if not self.parent_dir:
             return self.leafname
+
+        if self.filetype in (0xFFF, 0x1000):
+            # A text file or a directory
+            suffix = ''
+
+        elif self.filetype == -1:
+            # Not filetyped - there's a load and exec address.
+            # We will treat these as Data for now - the strongcopy tool
+            # doesn't support load and exec formats.
+            suffix = ',ffd'
+
+        else:
+            # Other filetypes
+            suffix = ',%03x' % (self.filetype,)
+
         parent = self.parent_dir.unix_filename
         if parent == '$':
-            return leafname
+            return leafname + suffix
         else:
-            return "{}/{}".format(parent, leafname.encode('utf-8'))
+            return "{}/{}{}".format(parent, leafname.encode('utf-8'), suffix)
 
 
 class StrongHelpFile(StrongHelpObject):

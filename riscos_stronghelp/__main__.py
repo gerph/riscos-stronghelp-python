@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 """
-Read StrongHelp files.
+Command line tool for extracting StrongHelp manuals into a directory.
 
-To extract files directly:
-
-    python -m stronghelp.extractor --extract-dir <directory> <stronghelp-file>
+    python -m riscos_stronghelp.extractor --extract-dir <directory> <stronghelp-file>
 """
 
 import argparse
 import os
 import sys
 
-from stronghelp.format import StrongHelp, objtype_dir
+from riscos_stronghelp.format import StrongHelp, objtype_dir
 
 
 def extract_to_directory(sh, output_dir):
@@ -40,7 +38,7 @@ def setup_argparse():
     parser = argparse.ArgumentParser(usage="%s [<options>] <strong-help-file>" % (os.path.basename(sys.argv[0]),))
     parser.add_argument('file', action='store',
                         help="StrongHelp file to read")
-    parser.add_argument('--extract-dir', action='store', default=None,
+    parser.add_argument('--extract-dir', action='store', default="SHManual",
                         help="Directory to extract into")
 
     return parser

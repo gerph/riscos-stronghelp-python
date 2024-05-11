@@ -1,1 +1,4 @@
 *.pyc
+build/
+dist/
+riscos_stronghelp.egg-info/
