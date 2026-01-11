@@ -2,3 +2,4 @@
 build/
 dist/
 riscos_stronghelp.egg-info/
+setup.py
