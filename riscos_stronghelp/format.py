@@ -77,11 +77,10 @@ class StrongHelpObject(StrongHelpBlock):
         #                                self.filename, self.offset))
 
     def __repr__(self):
-        return "<{}('{}', &{:08x}/&{:08x}, &{:x} bytes)>".format(self.__class__.__name__,
-                                                                 self.filename,
-                                                                 self.loadaddr,
-                                                                 self.execaddr,
-                                                                 self.length)
+        return "<{}(name='{}', type=0x{:x}, size={})>".format(self.__class__.__name__,
+                                                              self.filename,
+                                                              self.filetype,
+                                                              self.length)
 
     @property
     def attributes(self):
@@ -117,7 +116,7 @@ class StrongHelpObject(StrongHelpBlock):
     def unix_filename(self):
         leafname = self.leafname.replace('/', '.')
         if not self.parent_dir:
-            return self.leafname
+            return leafname
 
         if self.filetype in (0xFFF, 0x1000):
             # A text file or a directory
@@ -210,8 +209,9 @@ class StrongHelpDir(StrongHelpObject):
             flags = self.read_word(offset + 16)
             reserved = self.read_word(offset + 20)
             # FIXME: Assuming the filename encoding is latin-1 (probably correct, but not configurable)
-            name = self.read_string(offset + 24).decode('latin-1')
-            offset += 24 + (len(name) + 4) & ~3
+            name_bytes = self.read_string(offset + 24)
+            name = name_bytes.decode('latin-1')
+            offset += 24 + (len(name_bytes) + 4) & ~3
 
             if flags & flag_directory:
                 shfile = StrongHelpDir(self.sh, object_offset, parent_dir=self, leafname=name,
@@ -233,7 +233,7 @@ class StrongHelp(object):
                 self.data = fh.read()
 
         if self.data[0:4] != b'HELP':
-            raise StrongHelpFormatError("This is not a StronhHelp file")
+            raise StrongHelpFormatError("This is not a StrongHelp file")
 
         self.root_size = self.read_word(4)
         self.stronghelp_version = self.read_word(8)
