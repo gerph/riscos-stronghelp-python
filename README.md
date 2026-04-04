@@ -21,3 +21,7 @@ At the command line the extraction tool may be used with the
 supplied shell command:
 
     riscos-shextract [--extract-dir <directory>] <stronghelp-file>
+
+Or to list files:
+
+    riscos-shextract --list <stronghelp-file>
