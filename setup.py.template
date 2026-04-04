@@ -21,7 +21,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 setup(
-    name = 'riscos-stronghelp',
+    name = 'riscos_stronghelp',
     packages = ['riscos_stronghelp'],
     version = "0.2.0",
     license='MIT',
