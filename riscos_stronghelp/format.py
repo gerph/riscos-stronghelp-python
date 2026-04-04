@@ -111,7 +111,7 @@ class StrongHelpObject(StrongHelpBlock):
         if not self.parent_dir:
             return self.leafname
         parent = self.parent_dir.filename
-        return "{}.{}".format(parent, self.leafname.encode('latin-1'))
+        return "{}.{}".format(parent, self.leafname)
 
     @property
     def unix_filename(self):
@@ -137,7 +137,7 @@ class StrongHelpObject(StrongHelpBlock):
         if parent == '$':
             return leafname + suffix
         else:
-            return "{}/{}{}".format(parent, leafname.encode('utf-8'), suffix)
+            return "{}/{}{}".format(parent, leafname, suffix)
 
 
 class StrongHelpFile(StrongHelpObject):
@@ -150,7 +150,7 @@ class StrongHelpFile(StrongHelpObject):
             self.size = 0
 
         else:
-            if self.read_bytes(4, offset=0) != 'DATA':
+            if self.read_bytes(4, offset=0) != b'DATA':
                 raise StrongHelpFormatError("Bad file entry '{}' at offset &{:x}: "
                                             "Block header is invalid".format(self.filename,
                                                                              offset))
@@ -179,7 +179,7 @@ class StrongHelpDir(StrongHelpObject):
     def __init__(self, sh, offset, parent_dir, leafname, loadaddr=0, execaddr=0, flags=0, length=0):
         super(StrongHelpDir, self).__init__(sh, offset, parent_dir, leafname, loadaddr, execaddr, flags, length)
 
-        if self.read_bytes(4, offset=0) != 'DIR$':
+        if self.read_bytes(4, offset=0) != b'DIR$':
             raise StrongHelpFormatError("Bad directory entry '{}' at offset &{:x}: "
                                         "Block header is invalid".format(self.filename,
                                                                          offset))
@@ -232,7 +232,7 @@ class StrongHelp(object):
             with open(filename, 'rb') as fh:
                 self.data = fh.read()
 
-        if self.data[0:4] != 'HELP':
+        if self.data[0:4] != b'HELP':
             raise StrongHelpFormatError("This is not a StronhHelp file")
 
         self.root_size = self.read_word(4)
@@ -267,8 +267,7 @@ class StrongHelp(object):
         return self.data[offset:offset + size]
 
     def read_string(self, offset):
-        s = []
-        while self.data[offset] != '\0':
-            s.append(self.data[offset])
+        start = offset
+        while offset < len(self.data) and self.data[offset:offset+1] != b'\0':
             offset += 1
-        return b''.join(s)
+        return self.data[start:offset]

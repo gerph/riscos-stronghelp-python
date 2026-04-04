@@ -5,6 +5,7 @@ Command line tool for extracting StrongHelp manuals into a directory.
     python -m riscos_stronghelp.extractor --extract-dir <directory> <stronghelp-file>
 """
 
+from __future__ import print_function
 import argparse
 import os
 import sys
